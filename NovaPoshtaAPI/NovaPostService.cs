@@ -6,6 +6,7 @@ using NovaPoshtaAPIBleBla.Models.City;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -129,5 +130,22 @@ namespace NovaPoshtaAPIBleBla
             }
 
         }
+
+        public void ShowArea()
+        {
+            foreach( var entity in _dataContext.tblAreas)
+            {
+                Console.WriteLine(entity.Name, "    ", entity.Ref);
+            }
+        }
+
+        public void ShowSettlements()
+        {
+            foreach (var entity in _dataContext.tblCities)
+            {
+                Console.WriteLine(entity.Description , "    ", entity.Ref);
+            }
+        }
+
     }
 }
