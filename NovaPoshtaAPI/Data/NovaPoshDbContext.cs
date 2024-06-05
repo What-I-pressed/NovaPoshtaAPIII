@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NovaPoshtaAPIBleBla.Entities;
 
 namespace Infrastructure.Data
 {
@@ -14,6 +15,8 @@ namespace Infrastructure.Data
         public DbSet<CityEntity> tblCities { get; set; }
         
         public DbSet<AreaEntity> tblAreas { get; set; }
+
+        public DbSet<PostOfficeEntity> tblPostOffices { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

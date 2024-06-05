@@ -2,6 +2,7 @@
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace NovaPoshtaAPIBleBla.Migrations
 {
     [DbContext(typeof(NovaPoshDbContext))]
-    partial class NovaPoshDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240605175636_tblPostOffices have been added")]
+    partial class tblPostOfficeshavebeenadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.6");
@@ -78,10 +81,6 @@ namespace NovaPoshtaAPIBleBla.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Ref")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

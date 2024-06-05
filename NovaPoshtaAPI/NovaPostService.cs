@@ -3,9 +3,11 @@ using Infrastructure.Entities;
 using Newtonsoft.Json;
 using NovaPoshtaAPIBleBla.Models.Area;
 using NovaPoshtaAPIBleBla.Models.City;
+using NovaPoshtaAPIBleBla.Models.PostOffice;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ namespace NovaPoshtaAPIBleBla
         private readonly HttpClient _httpClient;
         private readonly string _url;
         private readonly NovaPoshDbContext _dataContext;
+        private readonly string key = "1c104ca0cc43861c044c67c00e0f8072";
 
         public NovaPostService()
         {
@@ -29,8 +32,6 @@ namespace NovaPoshtaAPIBleBla
 
         public void GetAreas()
         {
-            string key = "917287e88b0a212026f65478f71ffcdb";
-
             AreaRequestDTO areaRequestDTO = new AreaRequestDTO
             {
                 ApiKey = key,
@@ -77,7 +78,6 @@ namespace NovaPoshtaAPIBleBla
 
         public void GetSettlements()
         {
-            string key = "917287e88b0a212026f65478f71ffcdb";
             int page = 1;
             while (true)
             {
@@ -100,7 +100,7 @@ namespace NovaPoshtaAPIBleBla
                     string responseData = response.Content.ReadAsStringAsync().Result;
                     var result = JsonConvert.DeserializeObject<SettlementResponseDTO>(responseData);
                     if (result.Data.Any())
-                    {   
+                    {
                         foreach (var settlement in result.Data)
                         {
                             var entity = _dataContext.tblCities.SingleOrDefault(x => x.Ref == settlement.Ref);
@@ -131,6 +131,55 @@ namespace NovaPoshtaAPIBleBla
 
         }
 
+        public void getPostOffices()
+        {
+            PostOfficeRequestDTO request = new PostOfficeRequestDTO
+            {
+                ApiKey = key,
+                ModelName = "AddressGeneral",
+                CalledMethod = "getWarehouses",
+                MethodProperties = new PostOfficeRequestPropertyDTO()
+            };
+            while (true)
+            {
+                string json = JsonConvert.SerializeObject(request);
+                HttpContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = _httpClient.PostAsync(_url, httpContent).Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    string responseContent = response.Content.ReadAsStringAsync().Result;
+                    var result = JsonConvert.DeserializeObject<PostOfficeResponseDTO>(responseContent);
+                    if (result.Data.Any())
+                    {
+                        foreach(var postOffice in result.Data)
+                        {
+                            var entity = _dataContext.tblPostOffices.SingleOrDefault(x => x.Ref == postOffice.Ref);
+                            if(entity is null)
+                            {
+                                entity = new Entities.PostOfficeEntity
+                                {
+                                    Ref = postOffice.Ref,
+                                    Description = postOffice.Description,
+                                    CityDescription = postOffice.CityDescription,
+                                    CategoryOfWarehouse = postOffice.CategoryOfWarehouse
+                                };
+                                _dataContext.tblPostOffices.Add(entity);
+                                Console.WriteLine($"PostOffice description : {entity.Description}");
+                            }
+                        }
+                        request.MethodProperties.Page++;
+                    }
+                    else
+                    {
+                        _dataContext.SaveChanges();
+                        return;
+                    }
+                }
+            }
+        }
+
+
+
         public void ShowArea()
         {
             foreach( var entity in _dataContext.tblAreas)
@@ -144,6 +193,14 @@ namespace NovaPoshtaAPIBleBla
             foreach (var entity in _dataContext.tblCities)
             {
                 Console.WriteLine(entity.Description , "    ", entity.Ref);
+            }
+        }
+
+        public void ShowPostOffices()
+        {
+            foreach (var entity in _dataContext.tblPostOffices)
+            {
+                Console.WriteLine(entity.Description, "    ", entity.CategoryOfWarehouse);
             }
         }
 
